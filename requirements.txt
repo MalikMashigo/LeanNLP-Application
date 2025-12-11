@@ -1,0 +1,33 @@
+# LeanNLP Manufacturing Application Dependencies
+# Core
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# NLP
+spacy>=3.6.0
+transformers>=4.30.0
+sentence-transformers>=2.2.0
+
+# Knowledge Graph
+networkx>=3.1
+pyvis>=0.3.2
+
+# Predictive Analytics
+statsmodels>=0.14.0
+prophet>=1.1.4
+
+# Dashboard & API
+streamlit>=1.28.0
+plotly>=5.18.0
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Document Processing
+python-docx>=0.8.11
+PyPDF2>=3.0.0
+openpyxl>=3.1.2
+
+# Utilities
+python-dateutil>=2.8.2
+pydantic>=2.5.0
