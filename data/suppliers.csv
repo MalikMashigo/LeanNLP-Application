@@ -1,0 +1,11 @@
+supplier_id,name,category,reliability_score,avg_lead_time_days,contract_value,payment_terms,quality_rating
+S001,SteelCorp Industries,Bearings,0.88,4,153071.63,Net 30,4.7
+S002,FastParts Supply,Tooling,0.74,9,460911.26,Net 60,4.8
+S003,PrecisionMetal Co,Lubricants,0.72,18,228034.36,Net 60,4.2
+S004,GlobalComponents Ltd,Electronic Components,0.7,20,292539.78,Net 60,4.4
+S005,QualityAlloys Inc,Tooling,0.77,7,279286.83,Net 30,4.6
+S006,TechMaterials Group,Aluminum Stock,0.7,8,406435.71,Net 45,4.4
+S007,ReliableSupply Partners,Tooling,0.78,17,288101.46,Net 60,4.8
+S008,IndustrialSource LLC,Raw Steel,0.88,6,356769.67,Net 60,4.6
+S009,MetalWorks Direct,Lubricants,0.69,16,121170.99,Net 30,4.9
+S010,ComponentPro Solutions,Electronic Components,0.98,8,278456.75,Net 30,4.8

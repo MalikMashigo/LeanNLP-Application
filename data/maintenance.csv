@@ -1,0 +1,201 @@
+event_id,machine_id,machine_name,machine_type,event_type,description,start_time,duration_hours,cost,labor_hours,parts_cost,root_cause,downtime_impact_hours
+ME0033,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-01-04,4.6,1703.78,8.3,862.21,N/A,0.0
+ME0028,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-01-07,2.6,2654.85,4.9,973.61,N/A,0.0
+ME0069,M001,Injection Molder #1,Injection Molder,unplanned,Unplanned repair: Software error,2023-01-09,22.9,1346.3,23.2,518.73,Contamination,35.5
+ME0082,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-01-11,5.0,2088.98,7.0,1103.29,N/A,0.0
+ME0127,M006,CNC Mill #6,CNC Mill,emergency,Emergency repair: Critical Bearing failure,2023-01-15,44.9,1365.77,48.8,586.68,Design flaw,83.1
+ME0137,M002,Lathe #2,Lathe,planned,Scheduled maintenance for Lathe,2023-01-19,5.6,861.36,7.3,315.39,N/A,0.0
+ME0154,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-01-19,4.3,816.99,8.0,481.47,N/A,0.0
+ME0106,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Hydraulic leak,2023-01-19,19.1,3992.54,36.4,1971.92,Insufficient maintenance,35.0
+ME0160,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-01-20,6.3,3404.2,10.2,1789.65,N/A,0.0
+ME0049,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-01-24,6.1,1623.6,7.1,714.74,N/A,0.0
+ME0140,M009,Assembly Line #9,Assembly Line,unplanned,Unplanned repair: Bearing failure,2023-01-24,20.1,2744.18,35.1,1182.38,Contamination,39.0
+ME0035,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Sensor malfunction,2023-01-25,12.2,5092.41,18.9,1820.8,Power surge,21.2
+ME0159,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Hydraulic leak,2023-01-28,10.7,1912.57,12.4,677.53,Material defect,19.1
+ME0122,M013,Lathe #13,Lathe,emergency,Emergency repair: Critical Software error,2023-01-29,28.9,3055.53,29.8,1832.02,Power surge,44.5
+ME0197,M010,Injection Molder #10,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-01-29,5.7,3191.3,7.7,1841.95,N/A,0.0
+ME0084,M014,Injection Molder #14,Injection Molder,emergency,Emergency repair: Critical Software error,2023-01-30,42.8,4955.19,50.8,2024.36,Contamination,72.7
+ME0174,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-01-30,5.8,1985.88,10.0,793.87,N/A,0.0
+ME0125,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-01-31,5.9,1980.17,10.2,721.78,N/A,0.0
+ME0080,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-02-02,4.7,1051.02,9.3,452.74,N/A,0.0
+ME0005,M007,Press #7,Press,emergency,Emergency repair: Critical Pneumatic failure,2023-02-03,22.9,3038.03,28.6,969.76,Normal wear and tear,38.3
+ME0116,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-02-05,4.2,1145.81,4.9,385.74,N/A,0.0
+ME0145,M012,CNC Mill #12,CNC Mill,emergency,Emergency repair: Critical Electrical fault,2023-02-05,40.6,1443.93,51.0,508.34,Material defect,73.4
+ME0147,M015,Lathe #15,Lathe,emergency,Emergency repair: Critical Tool wear,2023-02-06,33.4,3950.2,54.4,1363.95,Operator error,52.6
+ME0199,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Software error,2023-02-07,23.1,1601.95,41.8,675.75,Contamination,29.1
+ME0030,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-02-07,5.1,1067.35,9.3,426.24,N/A,0.0
+ME0112,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Calibration drift,2023-02-10,20.5,4105.89,22.9,1287.62,Normal wear and tear,29.6
+ME0038,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Bearing failure,2023-02-11,16.4,5856.07,28.7,2938.8,Environmental conditions,30.2
+ME0144,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-02-11,2.7,1676.87,5.1,678.82,N/A,0.0
+ME0086,M002,Lathe #2,Lathe,planned,Scheduled maintenance for Lathe,2023-02-13,5.7,473.05,6.5,220.09,N/A,0.0
+ME0146,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-02-14,5.0,1947.5,8.7,846.52,N/A,0.0
+ME0196,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-02-15,3.8,1740.39,5.7,610.16,N/A,0.0
+ME0054,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Hydraulic leak,2023-02-17,7.0,3157.23,7.9,1844.85,Contamination,12.4
+ME0055,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-02-25,5.6,1159.7,6.3,632.95,N/A,0.0
+ME0037,M007,Press #7,Press,unplanned,Unplanned repair: Software error,2023-02-25,17.1,1990.43,28.6,902.37,Material defect,29.5
+ME0171,M014,Injection Molder #14,Injection Molder,emergency,Emergency repair: Critical Pneumatic failure,2023-03-02,29.4,6484.2,50.6,2511.86,Normal wear and tear,49.8
+ME0077,M003,Assembly Line #3,Assembly Line,unplanned,Unplanned repair: Calibration drift,2023-03-03,19.0,2971.43,27.9,1162.5,Power surge,37.1
+ME0057,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-03-04,6.1,1661.3,6.8,883.38,N/A,0.0
+ME0121,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-03-04,2.7,830.18,5.2,259.85,N/A,0.0
+ME0067,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-03-06,7.9,1430.43,10.1,472.27,N/A,0.0
+ME0118,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Electrical fault,2023-03-07,8.3,1187.11,9.5,676.84,Normal wear and tear,11.8
+ME0091,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-03-07,5.5,1734.87,10.2,752.87,N/A,0.0
+ME0124,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Tool wear,2023-03-08,15.0,3099.7,23.9,1204.14,Power surge,19.1
+ME0047,M007,Press #7,Press,emergency,Emergency repair: Critical Motor overheating,2023-03-08,45.8,5226.35,80.9,2164.31,Normal wear and tear,89.6
+ME0150,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-03-10,5.3,2437.91,10.1,1060.3,N/A,0.0
+ME0016,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Bearing failure,2023-03-11,15.9,1431.91,25.2,654.15,Insufficient maintenance,21.7
+ME0079,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Motor overheating,2023-03-13,15.7,4998.08,26.3,1903.53,Normal wear and tear,28.5
+ME0162,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-03-15,7.9,1546.54,10.1,641.13,N/A,0.0
+ME0036,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-03-16,3.8,889.72,3.8,343.5,N/A,0.0
+ME0133,M003,Assembly Line #3,Assembly Line,emergency,Emergency repair: Critical Bearing failure,2023-03-18,34.3,2049.18,56.0,633.6,Environmental conditions,51.5
+ME0128,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-03-20,5.4,2109.04,7.6,1185.45,N/A,0.0
+ME0132,M010,Injection Molder #10,Injection Molder,unplanned,Unplanned repair: Calibration drift,2023-03-22,4.5,882.41,5.8,466.55,Design flaw,6.7
+ME0021,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-03-24,2.9,530.37,3.6,213.67,N/A,0.0
+ME0092,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-03-25,6.6,878.98,12.7,493.0,N/A,0.0
+ME0189,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-03-30,3.7,924.9,4.3,474.35,N/A,0.0
+ME0045,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-03-31,2.5,589.37,3.4,203.83,N/A,0.0
+ME0119,M003,Assembly Line #3,Assembly Line,emergency,Emergency repair: Critical Hydraulic leak,2023-03-31,18.0,1790.4,33.6,607.92,Design flaw,33.0
+ME0114,M012,CNC Mill #12,CNC Mill,unplanned,Unplanned repair: Hydraulic leak,2023-03-31,12.4,4484.36,20.5,2466.88,Power surge,24.2
+ME0050,M003,Assembly Line #3,Assembly Line,emergency,Emergency repair: Critical Sensor malfunction,2023-04-03,9.1,5694.33,15.1,1851.71,Power surge,11.9
+ME0161,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-04-03,3.4,1453.56,6.1,830.26,N/A,0.0
+ME0195,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-04-11,7.4,2153.35,9.2,1056.26,N/A,0.0
+ME0001,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Hydraulic leak,2023-04-17,16.2,3055.66,18.8,1790.77,Normal wear and tear,27.2
+ME0139,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-04-22,6.5,645.31,8.9,329.82,N/A,0.0
+ME0097,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Motor overheating,2023-04-27,21.4,3278.57,26.5,1656.73,Insufficient maintenance,42.9
+ME0130,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-04-30,3.3,592.19,6.2,242.96,N/A,0.0
+ME0169,M003,Assembly Line #3,Assembly Line,unplanned,Unplanned repair: Motor overheating,2023-05-06,13.0,5491.63,13.2,2002.78,Material defect,21.3
+ME0191,M009,Assembly Line #9,Assembly Line,unplanned,Unplanned repair: Pneumatic failure,2023-05-07,20.1,1300.76,37.8,415.89,Power surge,40.1
+ME0193,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-05-08,6.1,1025.16,11.4,547.52,N/A,0.0
+ME0042,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Software error,2023-05-13,6.7,2102.46,13.3,1006.31,Contamination,11.3
+ME0075,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-05-14,2.4,775.2,3.1,416.57,N/A,0.0
+ME0013,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Pneumatic failure,2023-05-14,9.7,2087.05,14.4,745.01,Environmental conditions,19.2
+ME0188,M003,Assembly Line #3,Assembly Line,emergency,Emergency repair: Critical Software error,2023-05-15,14.9,8977.83,27.0,5299.33,Design flaw,25.9
+ME0166,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-05-16,7.3,1406.14,10.3,589.08,N/A,0.0
+ME0123,M002,Lathe #2,Lathe,planned,Scheduled maintenance for Lathe,2023-05-19,2.4,259.07,3.9,82.82,N/A,0.0
+ME0072,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-05-20,3.8,1259.35,5.4,592.63,N/A,0.0
+ME0136,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-05-20,4.5,588.02,6.8,237.3,N/A,0.0
+ME0184,M010,Injection Molder #10,Injection Molder,unplanned,Unplanned repair: Bearing failure,2023-05-22,4.7,2186.77,7.7,893.61,Normal wear and tear,7.9
+ME0078,M009,Assembly Line #9,Assembly Line,unplanned,Unplanned repair: Motor overheating,2023-05-22,5.6,5402.88,9.7,2599.4,Normal wear and tear,7.1
+ME0141,M014,Injection Molder #14,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-05-27,5.4,2584.92,7.7,864.79,N/A,0.0
+ME0043,M012,CNC Mill #12,CNC Mill,emergency,Emergency repair: Critical Pneumatic failure,2023-05-28,41.2,3759.92,47.8,2099.72,Contamination,58.0
+ME0065,M009,Assembly Line #9,Assembly Line,unplanned,Unplanned repair: Pneumatic failure,2023-05-29,23.9,2386.27,40.8,909.83,Insufficient maintenance,33.1
+ME0170,M012,CNC Mill #12,CNC Mill,unplanned,Unplanned repair: Calibration drift,2023-05-30,6.2,1569.38,7.0,583.08,Contamination,7.8
+ME0052,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-05-31,3.5,347.43,3.6,160.45,N/A,0.0
+ME0048,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Pneumatic failure,2023-06-01,14.8,5739.17,28.0,2562.36,Insufficient maintenance,22.9
+ME0090,M014,Injection Molder #14,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-06-03,4.0,2831.31,5.1,851.57,N/A,0.0
+ME0200,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-06-03,4.9,992.67,7.9,390.89,N/A,0.0
+ME0126,M008,Press #8,Press,emergency,Emergency repair: Critical Software error,2023-06-04,21.6,2753.14,37.3,1084.09,Design flaw,37.3
+ME0192,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-06-05,6.6,2102.51,7.1,1244.09,N/A,0.0
+ME0008,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-06-05,4.8,1512.34,8.0,900.22,N/A,0.0
+ME0074,M002,Lathe #2,Lathe,planned,Scheduled maintenance for Lathe,2023-06-06,4.7,951.65,6.1,351.58,N/A,0.0
+ME0026,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Hydraulic leak,2023-06-07,23.5,2799.56,29.0,976.35,Material defect,44.7
+ME0046,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-06-07,4.0,1558.0,4.2,856.69,N/A,0.0
+ME0012,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-06-10,7.4,496.35,7.4,207.04,N/A,0.0
+ME0179,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-06-11,6.5,1357.76,9.0,803.95,N/A,0.0
+ME0173,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-06-17,7.9,656.57,8.0,352.29,N/A,0.0
+ME0093,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-06-19,3.4,1994.98,3.5,1044.19,N/A,0.0
+ME0103,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-06-19,7.1,685.96,9.8,279.66,N/A,0.0
+ME0094,M012,CNC Mill #12,CNC Mill,emergency,Emergency repair: Critical Hydraulic leak,2023-06-20,23.4,4093.47,24.3,1844.87,Design flaw,44.4
+ME0111,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Electrical fault,2023-06-25,6.2,3670.3,10.0,2139.61,Design flaw,11.9
+ME0164,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-06-25,5.3,480.83,9.8,267.03,N/A,0.0
+ME0185,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-06-26,4.2,1966.94,6.7,902.51,N/A,0.0
+ME0115,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-06-26,3.3,1750.79,4.1,715.73,N/A,0.0
+ME0134,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-06-26,3.9,783.89,7.5,375.38,N/A,0.0
+ME0180,M008,Press #8,Press,unplanned,Unplanned repair: Pneumatic failure,2023-06-27,22.5,1360.19,24.3,581.28,Power surge,37.8
+ME0190,M012,CNC Mill #12,CNC Mill,unplanned,Unplanned repair: Bearing failure,2023-06-30,14.2,4933.1,25.4,1830.28,Contamination,17.3
+ME0002,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-06-30,7.3,1697.0,9.5,538.59,N/A,0.0
+ME0068,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-07-01,3.1,338.2,4.7,129.29,N/A,0.0
+ME0029,M014,Injection Molder #14,Injection Molder,emergency,Emergency repair: Critical Electrical fault,2023-07-06,20.2,3156.63,33.5,1324.33,Insufficient maintenance,38.2
+ME0153,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-07-12,6.1,514.95,9.9,206.18,N/A,0.0
+ME0175,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-07-12,6.9,901.53,12.2,396.12,N/A,0.0
+ME0096,M013,Lathe #13,Lathe,emergency,Emergency repair: Critical Sensor malfunction,2023-07-12,32.9,3081.84,61.0,1712.59,Power surge,64.7
+ME0009,M002,Lathe #2,Lathe,planned,Scheduled maintenance for Lathe,2023-07-12,6.8,297.51,8.1,137.12,N/A,0.0
+ME0027,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-07-15,6.7,1646.9,11.2,857.24,N/A,0.0
+ME0155,M010,Injection Molder #10,Injection Molder,emergency,Emergency repair: Critical Hydraulic leak,2023-07-15,11.3,9713.25,14.8,4825.7,Power surge,14.7
+ME0083,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-07-24,3.5,715.15,6.2,400.11,N/A,0.0
+ME0032,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-07-25,4.6,1971.62,5.2,1123.53,N/A,0.0
+ME0156,M012,CNC Mill #12,CNC Mill,emergency,Emergency repair: Critical Tool wear,2023-07-27,30.4,6239.0,50.7,3423.26,Operator error,52.1
+ME0071,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Electrical fault,2023-07-30,5.7,619.82,10.1,298.69,Environmental conditions,10.4
+ME0104,M005,Injection Molder #5,Injection Molder,emergency,Emergency repair: Critical Sensor malfunction,2023-08-03,8.9,3643.84,13.9,1842.83,Normal wear and tear,17.1
+ME0158,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-08-03,7.1,573.08,12.5,315.5,N/A,0.0
+ME0181,M014,Injection Molder #14,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-08-04,3.9,602.22,6.5,236.04,N/A,0.0
+ME0088,M014,Injection Molder #14,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-08-05,5.1,1211.29,9.3,719.59,N/A,0.0
+ME0149,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-08-08,2.5,3072.39,4.6,1488.58,N/A,0.0
+ME0105,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-08-08,6.7,767.77,12.0,280.77,N/A,0.0
+ME0019,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-08-09,2.9,1275.56,5.0,616.74,N/A,0.0
+ME0010,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-08-12,4.8,2661.11,5.1,1443.4,N/A,0.0
+ME0186,M007,Press #7,Press,planned,Scheduled maintenance for Press,2023-08-12,3.5,404.21,6.1,181.78,N/A,0.0
+ME0044,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Pneumatic failure,2023-08-13,19.3,3216.82,23.9,1389.54,Insufficient maintenance,26.8
+ME0148,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-08-14,5.5,1041.87,6.0,456.88,N/A,0.0
+ME0060,M009,Assembly Line #9,Assembly Line,emergency,Emergency repair: Critical Pneumatic failure,2023-08-16,32.6,7174.6,47.8,3929.67,Insufficient maintenance,47.6
+ME0085,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-08-18,5.3,1402.36,7.6,714.47,N/A,0.0
+ME0022,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Calibration drift,2023-08-19,14.1,4574.01,26.0,1498.86,Power surge,26.3
+ME0017,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-08-19,4.4,1761.3,5.7,695.46,N/A,0.0
+ME0031,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-08-21,3.1,3381.98,3.9,1124.58,N/A,0.0
+ME0051,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-08-21,4.3,580.99,5.7,306.98,N/A,0.0
+ME0070,M003,Assembly Line #3,Assembly Line,emergency,Emergency repair: Critical Software error,2023-08-25,45.6,1824.11,48.6,816.33,Normal wear and tear,60.3
+ME0178,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Electrical fault,2023-08-25,4.7,2502.5,8.8,786.64,Design flaw,6.7
+ME0039,M003,Assembly Line #3,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-08-29,7.9,1950.44,14.0,851.61,N/A,0.0
+ME0113,M008,Press #8,Press,planned,Scheduled maintenance for Press,2023-09-03,7.3,444.2,10.6,222.61,N/A,0.0
+ME0101,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Calibration drift,2023-09-05,13.2,1540.84,22.0,877.77,Contamination,25.4
+ME0087,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-09-08,8.0,2764.91,11.6,926.91,N/A,0.0
+ME0131,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-09-08,6.8,1290.96,13.5,704.25,N/A,0.0
+ME0064,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-09-10,4.4,1116.41,7.4,458.52,N/A,0.0
+ME0007,M005,Injection Molder #5,Injection Molder,unplanned,Unplanned repair: Software error,2023-09-14,14.8,2230.88,21.8,941.7,Operator error,18.9
+ME0138,M010,Injection Molder #10,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-09-19,3.8,1015.39,4.3,382.45,N/A,0.0
+ME0177,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-09-21,7.3,1344.13,9.6,563.82,N/A,0.0
+ME0076,M010,Injection Molder #10,Injection Molder,unplanned,Unplanned repair: Pneumatic failure,2023-09-22,12.5,2116.3,14.4,803.54,Material defect,15.7
+ME0034,M012,CNC Mill #12,CNC Mill,unplanned,Unplanned repair: Bearing failure,2023-09-23,11.3,4769.94,21.7,2322.7,Operator error,20.0
+ME0040,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Sensor malfunction,2023-09-24,18.4,1634.82,22.8,812.21,Normal wear and tear,35.2
+ME0151,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Software error,2023-09-27,10.4,1653.69,20.4,719.62,Design flaw,20.7
+ME0015,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-09-28,2.4,483.49,4.5,203.62,N/A,0.0
+ME0172,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Bearing failure,2023-09-28,17.3,3426.82,23.5,2008.19,Normal wear and tear,26.1
+ME0176,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-09-30,6.9,391.98,12.2,171.41,N/A,0.0
+ME0062,M008,Press #8,Press,emergency,Emergency repair: Critical Tool wear,2023-09-30,27.5,4908.29,36.9,2768.75,Insufficient maintenance,45.2
+ME0100,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-10-04,2.5,1325.63,4.0,493.47,N/A,0.0
+ME0152,M002,Lathe #2,Lathe,unplanned,Unplanned repair: Software error,2023-10-05,4.8,2975.66,7.3,1437.07,Design flaw,7.2
+ME0142,M001,Injection Molder #1,Injection Molder,emergency,Emergency repair: Critical Software error,2023-10-06,40.1,8912.64,76.9,2909.43,Operator error,55.9
+ME0182,M010,Injection Molder #10,Injection Molder,unplanned,Unplanned repair: Tool wear,2023-10-08,17.8,3516.92,30.7,2016.89,Power surge,25.3
+ME0108,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-10-09,3.5,1263.33,5.2,684.66,N/A,0.0
+ME0004,M008,Press #8,Press,emergency,Emergency repair: Critical Sensor malfunction,2023-10-09,18.6,5807.56,35.9,3058.14,Environmental conditions,32.9
+ME0165,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-10-11,3.6,3201.71,4.2,1380.71,N/A,0.0
+ME0163,M009,Assembly Line #9,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-10-11,6.9,2463.4,7.9,923.78,N/A,0.0
+ME0135,M015,Lathe #15,Lathe,planned,Scheduled maintenance for Lathe,2023-10-13,6.5,217.18,7.1,94.02,N/A,0.0
+ME0168,M011,CNC Mill #11,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-10-19,2.8,895.48,5.2,455.64,N/A,0.0
+ME0089,M004,Assembly Line #4,Assembly Line,planned,Scheduled maintenance for Assembly Line,2023-10-19,4.3,2789.04,6.5,1572.46,N/A,0.0
+ME0107,M001,Injection Molder #1,Injection Molder,unplanned,Unplanned repair: Calibration drift,2023-10-26,5.8,2758.33,8.2,993.66,Design flaw,9.4
+ME0194,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Motor overheating,2023-10-27,12.7,4241.26,19.2,1659.34,Material defect,18.4
+ME0023,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-10-27,5.8,1175.16,10.1,547.04,N/A,0.0
+ME0058,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Motor overheating,2023-11-01,19.9,2887.38,28.5,1187.21,Design flaw,24.1
+ME0066,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-11-01,6.5,2389.47,10.9,854.15,N/A,0.0
+ME0187,M007,Press #7,Press,emergency,Emergency repair: Critical Calibration drift,2023-11-02,18.5,4401.8,22.4,2128.55,Contamination,25.1
+ME0109,M012,CNC Mill #12,CNC Mill,emergency,Emergency repair: Critical Bearing failure,2023-11-04,26.7,1700.11,52.6,948.73,Power surge,52.8
+ME0024,M007,Press #7,Press,unplanned,Unplanned repair: Hydraulic leak,2023-11-05,5.5,2364.13,10.1,1122.38,Material defect,8.5
+ME0059,M007,Press #7,Press,unplanned,Unplanned repair: Tool wear,2023-11-08,12.7,2688.11,23.2,1376.83,Power surge,17.0
+ME0041,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Electrical fault,2023-11-08,19.6,1808.09,38.3,823.38,Normal wear and tear,32.2
+ME0095,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Software error,2023-11-11,14.5,796.69,16.6,447.17,Material defect,18.3
+ME0073,M001,Injection Molder #1,Injection Molder,unplanned,Unplanned repair: Electrical fault,2023-11-12,23.0,4640.74,29.0,1505.25,Environmental conditions,30.7
+ME0098,M012,CNC Mill #12,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-11-12,6.6,1833.75,7.2,641.65,N/A,0.0
+ME0081,M014,Injection Molder #14,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-11-16,4.8,1636.3,6.4,542.24,N/A,0.0
+ME0110,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Motor overheating,2023-11-16,19.8,1014.04,22.3,416.34,Insufficient maintenance,33.0
+ME0117,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Motor overheating,2023-11-16,17.3,1018.64,23.0,607.77,Environmental conditions,21.7
+ME0061,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Software error,2023-11-18,9.6,1916.86,14.0,926.04,Power surge,14.1
+ME0063,M009,Assembly Line #9,Assembly Line,emergency,Emergency repair: Critical Sensor malfunction,2023-11-19,17.7,4857.48,31.0,2463.63,Contamination,27.5
+ME0167,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-11-21,4.2,313.42,8.2,172.93,N/A,0.0
+ME0143,M010,Injection Molder #10,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-11-22,4.4,1327.36,5.9,530.84,N/A,0.0
+ME0003,M015,Lathe #15,Lathe,unplanned,Unplanned repair: Software error,2023-11-22,5.7,2503.26,11.3,1151.03,Material defect,7.4
+ME0183,M013,Lathe #13,Lathe,emergency,Emergency repair: Critical Sensor malfunction,2023-11-24,34.8,1921.41,62.8,968.05,Normal wear and tear,45.8
+ME0102,M011,CNC Mill #11,CNC Mill,unplanned,Unplanned repair: Tool wear,2023-11-25,12.8,4944.43,16.7,2910.34,Insufficient maintenance,20.1
+ME0053,M006,CNC Mill #6,CNC Mill,planned,Scheduled maintenance for CNC Mill,2023-11-27,6.7,1716.45,11.7,1003.92,N/A,0.0
+ME0014,M010,Injection Molder #10,Injection Molder,unplanned,Unplanned repair: Motor overheating,2023-12-01,19.0,1015.9,28.0,584.97,Material defect,23.6
+ME0129,M013,Lathe #13,Lathe,planned,Scheduled maintenance for Lathe,2023-12-06,7.8,960.55,10.6,454.7,N/A,0.0
+ME0011,M014,Injection Molder #14,Injection Molder,unplanned,Unplanned repair: Pneumatic failure,2023-12-07,17.0,5966.97,33.6,3448.37,Environmental conditions,22.7
+ME0099,M005,Injection Molder #5,Injection Molder,emergency,Emergency repair: Critical Motor overheating,2023-12-09,21.0,3822.33,28.8,1313.62,Power surge,34.7
+ME0025,M001,Injection Molder #1,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-12-12,7.4,1011.74,9.2,334.72,N/A,0.0
+ME0198,M001,Injection Molder #1,Injection Molder,unplanned,Unplanned repair: Calibration drift,2023-12-18,5.6,4802.12,9.9,2040.79,Normal wear and tear,9.0
+ME0056,M005,Injection Molder #5,Injection Molder,planned,Scheduled maintenance for Injection Molder,2023-12-19,7.6,2163.76,14.5,892.75,N/A,0.0
+ME0157,M007,Press #7,Press,unplanned,Unplanned repair: Hydraulic leak,2023-12-23,11.3,3824.21,15.1,2026.25,Environmental conditions,15.5
+ME0120,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Motor overheating,2023-12-24,7.5,1284.5,10.6,429.14,Operator error,11.8
+ME0018,M013,Lathe #13,Lathe,emergency,Emergency repair: Critical Bearing failure,2023-12-28,26.3,746.71,31.9,283.42,Design flaw,50.2
+ME0020,M013,Lathe #13,Lathe,unplanned,Unplanned repair: Pneumatic failure,2023-12-28,17.4,1108.32,28.9,644.69,Material defect,24.5
+ME0006,M004,Assembly Line #4,Assembly Line,unplanned,Unplanned repair: Motor overheating,2023-12-29,5.4,1836.29,10.3,1024.45,Operator error,8.7
