@@ -1,6 +1,6 @@
 """
-LeanNLP: Manufacturing Analytics Dashboard
-SpaceX-inspired dark theme design with SVG icons.
+LeanNLP Manufacturing Analytics Dashboard
+SpaceX-inspired dark theme with SVG icons
 """
 
 import streamlit as st
@@ -8,22 +8,15 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-from datetime import datetime, timedelta
-import sys
+import pickle
+import json
 import os
+import re
+from datetime import datetime
 
-# Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from data.data_generator import SyntheticDataGenerator
-from data.cmapss_loader import CMAPSSDataLoader, CMAPSSFeatureEngineer, generate_synthetic_cmapss
-from models.nlp_pipeline import InsightExtractor, NaturalLanguageGenerator
-from models.knowledge_graph import ManufacturingKnowledgeGraph
-from models.predictive_analytics import PredictiveAnalyticsEngine
-from utils.icons import ICONS, get_icon, icon_html, LOGO_SVG
-
-# Page configuration
+# ============================================================
+# PAGE CONFIG
+# ============================================================
 st.set_page_config(
     page_title="LEANNLP",
     page_icon=None,
@@ -31,1042 +24,1138 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# SpaceX-inspired dark theme CSS
-DARK_THEME_CSS = """
+# ============================================================
+# CONSTANTS
+# ============================================================
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(SCRIPT_DIR, "demo_data")
+MODELS_DIR = os.path.join(SCRIPT_DIR, "trained_models")
+
+CMAPSS_COLUMNS = [
+    'unit_id', 'cycle', 'op_setting_1', 'op_setting_2', 'op_setting_3',
+    'sensor_1', 'sensor_2', 'sensor_3', 'sensor_4', 'sensor_5',
+    'sensor_6', 'sensor_7', 'sensor_8', 'sensor_9', 'sensor_10',
+    'sensor_11', 'sensor_12', 'sensor_13', 'sensor_14', 'sensor_15',
+    'sensor_16', 'sensor_17', 'sensor_18', 'sensor_19', 'sensor_20', 'sensor_21'
+]
+
+USEFUL_SENSORS = ['sensor_2', 'sensor_3', 'sensor_4', 'sensor_7', 'sensor_9',
+                  'sensor_11', 'sensor_12', 'sensor_14', 'sensor_15', 
+                  'sensor_17', 'sensor_20', 'sensor_21']
+
+# ============================================================
+# SVG ICONS
+# ============================================================
+ICONS = {
+    "dashboard": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>''',
+    
+    "turbine": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="m16.24 7.76 2.83-2.83"/></svg>''',
+    
+    "maintenance": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>''',
+    
+    "supplier": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 16h6"/><path d="M16 20h6"/><path d="M22 12H2"/><path d="M22 12v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8"/><path d="m22 12-3-9H5L2 12"/></svg>''',
+    
+    "upload": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>''',
+    
+    "train": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>''',
+    
+    "alert": '''<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>''',
+    
+    "check": '''<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>''',
+    
+    "x": '''<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>''',
+    
+    "analytics": '''<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>''',
+    
+    "file": '''<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>''',
+    
+    "rocket": '''<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>'''
+}
+
+LOGO_SVG = '''<svg width="160" height="28" viewBox="0 0 160 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 7L11 4L18 7V21L11 24L4 21V7Z" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M11 4V24" stroke="white" stroke-width="1" opacity="0.4"/>
+  <path d="M4 7L18 7" stroke="white" stroke-width="1" opacity="0.4"/>
+  <circle cx="11" cy="11" r="2" fill="white"/>
+  <text x="28" y="18" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="white" letter-spacing="3">LEANNLP</text>
+</svg>'''
+
+# ============================================================
+# DARK THEME CSS
+# ============================================================
+DARK_CSS = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    :root {
-        --bg-primary: #000000;
-        --bg-secondary: #0a0a0a;
-        --bg-tertiary: #111111;
-        --bg-card: #161616;
-        --border-color: #222222;
-        --text-primary: #ffffff;
-        --text-secondary: #a0a0a0;
-        --text-muted: #666666;
-        --accent-blue: #0066ff;
-        --accent-green: #00ff88;
-        --accent-red: #ff3333;
-        --accent-yellow: #ffaa00;
-    }
-    
-    .stApp {
-        background-color: var(--bg-primary) !important;
-    }
-    
-    .main .block-container {
-        padding-top: 2rem;
-        max-width: 1400px;
-    }
-    
-    /* Typography */
-    html, body, [class*="css"] {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-        color: var(--text-primary);
-    }
-    
-    h1, h2, h3 {
-        font-weight: 500 !important;
-        letter-spacing: 0.5px;
-        color: var(--text-primary) !important;
-    }
-    
-    p, span, div {
-        color: var(--text-secondary);
-    }
-    
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: var(--bg-secondary) !important;
-        border-right: 1px solid var(--border-color);
-    }
-    
-    [data-testid="stSidebar"] > div:first-child {
-        padding-top: 1rem;
-    }
-    
-    /* Header styles */
-    .main-header {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 1rem 0 2rem 0;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 2rem;
-    }
-    
-    .main-header h1 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        letter-spacing: 4px;
-        margin: 0;
-    }
-    
-    /* Metric cards */
-    .metric-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .metric-label {
-        font-size: 0.75rem;
-        font-weight: 500;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 0.5rem;
-    }
-    
-    .metric-value {
-        font-size: 2rem;
-        font-weight: 300;
-        color: var(--text-primary);
-        line-height: 1.2;
-    }
-    
-    .metric-delta {
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-    
-    .metric-delta.positive { color: var(--accent-green); }
-    .metric-delta.negative { color: var(--accent-red); }
-    .metric-delta.neutral { color: var(--text-muted); }
-    
-    /* Cards */
-    .card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .card-title {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    /* Alert boxes */
-    .alert {
-        padding: 1rem 1.25rem;
-        border-radius: 4px;
-        margin-bottom: 0.75rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-    }
-    
-    .alert-high {
-        background: rgba(255, 51, 51, 0.1);
-        border-left: 3px solid var(--accent-red);
-    }
-    
-    .alert-medium {
-        background: rgba(255, 170, 0, 0.1);
-        border-left: 3px solid var(--accent-yellow);
-    }
-    
-    .alert-low {
-        background: rgba(0, 255, 136, 0.1);
-        border-left: 3px solid var(--accent-green);
-    }
-    
-    .alert-info {
-        background: rgba(0, 102, 255, 0.1);
-        border-left: 3px solid var(--accent-blue);
-    }
-    
-    .alert-content {
-        flex: 1;
-    }
-    
-    .alert-title {
-        font-weight: 500;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-    
-    .alert-text {
-        font-size: 0.875rem;
-        color: var(--text-secondary);
-    }
-    
-    /* Navigation */
-    .nav-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0.75rem 1rem;
-        margin: 0.25rem 0;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background 0.2s;
-        color: var(--text-secondary);
-    }
-    
-    .nav-item:hover {
-        background: var(--bg-tertiary);
-    }
-    
-    .nav-item.active {
-        background: var(--bg-tertiary);
-        color: var(--text-primary);
-    }
-    
-    /* Data table */
-    .dataframe {
-        background: var(--bg-card) !important;
-        color: var(--text-primary) !important;
-    }
-    
-    .dataframe th {
-        background: var(--bg-tertiary) !important;
-        color: var(--text-secondary) !important;
-        font-weight: 500 !important;
-        text-transform: uppercase !important;
-        font-size: 0.75rem !important;
-        letter-spacing: 1px !important;
-    }
-    
-    .dataframe td {
-        border-color: var(--border-color) !important;
-    }
-    
-    /* Streamlit overrides */
-    .stSelectbox > div > div {
-        background: var(--bg-card) !important;
-        border-color: var(--border-color) !important;
-    }
-    
-    .stTextInput > div > div {
-        background: var(--bg-card) !important;
-        border-color: var(--border-color) !important;
-    }
-    
-    .stButton > button {
-        background: transparent !important;
-        border: 1px solid var(--border-color) !important;
-        color: var(--text-primary) !important;
-        font-weight: 500 !important;
-        letter-spacing: 1px !important;
-        padding: 0.5rem 1.5rem !important;
-        transition: all 0.2s !important;
-    }
-    
-    .stButton > button:hover {
-        background: var(--bg-tertiary) !important;
-        border-color: var(--text-muted) !important;
-    }
-    
-    .stFileUploader > div {
-        background: var(--bg-card) !important;
-        border: 1px dashed var(--border-color) !important;
-    }
-    
-    /* Radio buttons */
-    .stRadio > div {
-        flex-direction: row !important;
-        gap: 1rem;
-    }
-    
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: var(--bg-card) !important;
-        border: 1px solid var(--border-color) !important;
-    }
-    
-    /* Chat */
-    .stChatMessage {
-        background: var(--bg-card) !important;
-    }
-    
-    /* Plotly chart backgrounds */
-    .js-plotly-plot .plotly .bg {
-        fill: var(--bg-primary) !important;
-    }
-    
-    /* Section divider */
-    .section-divider {
-        height: 1px;
-        background: var(--border-color);
-        margin: 2rem 0;
-    }
-    
-    /* Status indicator */
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    
-    .status-dot.online { background: var(--accent-green); }
-    .status-dot.warning { background: var(--accent-yellow); }
-    .status-dot.offline { background: var(--accent-red); }
-    
-    /* Footer */
-    .footer {
-        text-align: center;
-        padding: 2rem 0;
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        border-top: 1px solid var(--border-color);
-        margin-top: 3rem;
-    }
-    
-    /* Hide Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-card: #111111;
+    --border: #222222;
+    --text-primary: #ffffff;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+    --accent-blue: #0066ff;
+    --accent-green: #00ff88;
+    --accent-red: #ff3333;
+    --accent-yellow: #ffaa00;
+}
+
+.stApp {
+    background-color: var(--bg-primary) !important;
+}
+
+.main .block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1400px;
+}
+
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: var(--text-primary);
+}
+
+h1, h2, h3, h4 {
+    font-weight: 500 !important;
+    letter-spacing: 0.5px;
+    color: var(--text-primary) !important;
+}
+
+p, span, label {
+    color: var(--text-secondary);
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: var(--bg-secondary) !important;
+    border-right: 1px solid var(--border);
+}
+
+[data-testid="stSidebar"] .stRadio > label {
+    color: var(--text-secondary) !important;
+}
+
+/* Cards */
+.metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.metric-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 1.75rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.metric-delta {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+}
+
+.metric-delta.positive { color: var(--accent-green); }
+.metric-delta.negative { color: var(--accent-red); }
+
+/* Section title */
+.section-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Status indicators */
+.status-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+}
+
+.status-row:last-child {
+    border-bottom: none;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.status-dot.green { background: var(--accent-green); }
+.status-dot.red { background: var(--accent-red); }
+.status-dot.yellow { background: var(--accent-yellow); }
+
+/* Alerts */
+.alert-box {
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.alert-box.high {
+    background: rgba(255, 51, 51, 0.1);
+    border-left: 3px solid var(--accent-red);
+}
+
+.alert-box.medium {
+    background: rgba(255, 170, 0, 0.1);
+    border-left: 3px solid var(--accent-yellow);
+}
+
+.alert-box.low {
+    background: rgba(0, 255, 136, 0.1);
+    border-left: 3px solid var(--accent-green);
+}
+
+.alert-box.info {
+    background: rgba(0, 102, 255, 0.1);
+    border-left: 3px solid var(--accent-blue);
+}
+
+.alert-title {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.alert-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+}
+
+/* Buttons */
+.stButton > button {
+    background: transparent !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.5px !important;
+    transition: all 0.2s !important;
+}
+
+.stButton > button:hover {
+    background: #111 !important;
+    border-color: #444 !important;
+}
+
+.stButton > button[kind="primary"] {
+    background: var(--accent-blue) !important;
+    border-color: var(--accent-blue) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: #0055dd !important;
+}
+
+/* Hide Streamlit branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* File uploader */
+[data-testid="stFileUploader"] {
+    background: var(--bg-card);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+/* Dataframe */
+.stDataFrame {
+    background: var(--bg-card) !important;
+}
+
+/* Select box */
+.stSelectbox > div > div {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+/* Progress bar */
+.stProgress > div > div {
+    background: var(--accent-blue) !important;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-top: 1px solid var(--border);
+    margin-top: 3rem;
+}
 </style>
 """
 
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
 
-def apply_plotly_theme(fig):
-    """Apply dark theme to plotly figure."""
-    fig.update_layout(
-        paper_bgcolor='#000000',
-        plot_bgcolor='#000000',
-        font=dict(color='#a0a0a0', family='Inter'),
-        xaxis=dict(gridcolor='#222222', linecolor='#222222', zerolinecolor='#222222'),
-        yaxis=dict(gridcolor='#222222', linecolor='#222222', zerolinecolor='#222222'),
-        margin=dict(t=40, b=40, l=40, r=20),
-        legend=dict(bgcolor='rgba(0,0,0,0)')
-    )
-    return fig
+def icon(name):
+    """Return SVG icon HTML."""
+    return ICONS.get(name, "")
 
 
-@st.cache_resource
-def load_manufacturing_data():
-    """Load or generate manufacturing data."""
-    generator = SyntheticDataGenerator(seed=42)
-    return generator.generate_all_data()
-
-
-@st.cache_resource
-def load_cmapss_data():
-    """Load synthetic CMAPSS data for demo."""
-    return generate_synthetic_cmapss(n_units=20, avg_cycles=200)
-
-
-@st.cache_resource
-def build_knowledge_graph(_data):
-    """Build knowledge graph from data."""
-    kg = ManufacturingKnowledgeGraph()
-    kg.build_from_dataframes(_data)
-    return kg
-
-
-@st.cache_resource
-def train_analytics_engine(_data):
-    """Train predictive analytics engine."""
-    engine = PredictiveAnalyticsEngine()
-    engine.train_all_models(_data)
-    return engine
-
-
-@st.cache_resource
-def extract_insights(_data):
-    """Extract insights from data."""
-    extractor = InsightExtractor()
+def metric_card(label, value, delta=None, delta_type="neutral"):
+    """Render a metric card."""
+    delta_class = delta_type if delta_type in ["positive", "negative"] else ""
+    delta_html = f'<div class="metric-delta {delta_class}">{delta}</div>' if delta else ""
     
-    all_insights = []
-    all_insights.extend(extractor.analyze_maintenance_patterns(_data["maintenance"]))
-    all_insights.extend(extractor.analyze_supplier_performance(_data["deliveries"]))
-    all_insights.extend(extractor.analyze_production_efficiency(_data["production"]))
-    all_insights.extend(extractor.analyze_financial_trends(_data["financials"]))
-    
-    recommendations = extractor.generate_recommendations(all_insights)
-    
-    return all_insights, recommendations
-
-
-def render_metric_card(label: str, value: str, delta: str = None, 
-                       delta_type: str = "neutral"):
-    """Render a metric card with label, value, and optional delta."""
-    delta_html = ""
-    if delta:
-        delta_class = delta_type
-        delta_html = f'<div class="metric-delta {delta_class}">{delta}</div>'
-    
-    st.markdown(f"""
+    st.markdown(f'''
     <div class="metric-card">
         <div class="metric-label">{label}</div>
         <div class="metric-value">{value}</div>
         {delta_html}
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 
-def render_alert(severity: str, title: str, text: str, icon_name: str = None):
+def section_title(text, icon_name=None):
+    """Render a section title with optional icon."""
+    icon_html = f'<span style="color: #555;">{icon(icon_name)}</span>' if icon_name else ""
+    st.markdown(f'<div class="section-title">{icon_html} {text}</div>', unsafe_allow_html=True)
+
+
+def alert_box(level, title, text):
     """Render an alert box."""
-    icon = get_icon(icon_name or "alert_high", size=20, color="#ffffff")
-    st.markdown(f"""
-    <div class="alert alert-{severity}">
-        <div>{icon}</div>
-        <div class="alert-content">
+    st.markdown(f'''
+    <div class="alert-box {level}">
+        <div>
             <div class="alert-title">{title}</div>
             <div class="alert-text">{text}</div>
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 
-def render_header():
-    """Render page header."""
-    st.markdown(DARK_THEME_CSS, unsafe_allow_html=True)
+def status_item(label, is_ok, detail=""):
+    """Render a status item."""
+    color = "green" if is_ok else "red"
+    icon_svg = ICONS["check"] if is_ok else ICONS["x"]
+    icon_color = "#00ff88" if is_ok else "#ff3333"
     
-    st.markdown(f"""
-    <div class="main-header">
-        {LOGO_SVG}
+    st.markdown(f'''
+    <div class="status-row">
+        <span class="status-dot {color}"></span>
+        <span style="color: #fff; flex: 1;">{label}</span>
+        <span style="color: #555; font-size: 0.8rem;">{detail}</span>
     </div>
-    """, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 
-def render_sidebar():
-    """Render sidebar navigation."""
+def divider():
+    """Render a divider."""
+    st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+
+
+def apply_plotly_theme(fig):
+    """Apply dark theme to Plotly figure."""
+    fig.update_layout(
+        paper_bgcolor='#000000',
+        plot_bgcolor='#000000',
+        font=dict(color='#888888', family='Inter'),
+        title_font=dict(color='#ffffff', size=14),
+        xaxis=dict(
+            gridcolor='#222222',
+            linecolor='#222222',
+            zerolinecolor='#222222',
+            tickfont=dict(color='#666666')
+        ),
+        yaxis=dict(
+            gridcolor='#222222',
+            linecolor='#222222',
+            zerolinecolor='#222222',
+            tickfont=dict(color='#666666')
+        ),
+        legend=dict(
+            bgcolor='rgba(0,0,0,0)',
+            font=dict(color='#888888')
+        ),
+        margin=dict(t=50, b=50, l=50, r=30)
+    )
+    return fig
+
+# ============================================================
+# DATA LOADING
+# ============================================================
+
+def load_cmapss_data():
+    """Load CMAPSS turbofan data."""
+    train_path = os.path.join(DATA_DIR, "train_FD001.txt")
+    test_path = os.path.join(DATA_DIR, "test_FD001.txt")
+    rul_path = os.path.join(DATA_DIR, "RUL_FD001.txt")
+    
+    if not os.path.exists(train_path):
+        return None, None, None
+    
+    try:
+        train_df = pd.read_csv(train_path, sep=r'\s+', header=None, names=CMAPSS_COLUMNS, engine='python')
+        
+        max_cycles = train_df.groupby('unit_id')['cycle'].max()
+        train_df = train_df.merge(max_cycles.rename('max_cycle').reset_index(), on='unit_id')
+        train_df['rul'] = train_df['max_cycle'] - train_df['cycle']
+        train_df.drop('max_cycle', axis=1, inplace=True)
+        
+        test_df = None
+        rul_df = None
+        
+        if os.path.exists(test_path):
+            test_df = pd.read_csv(test_path, sep=r'\s+', header=None, names=CMAPSS_COLUMNS, engine='python')
+        
+        if os.path.exists(rul_path):
+            rul_df = pd.read_csv(rul_path, header=None, names=['rul'])
+        
+        return train_df, test_df, rul_df
+    except Exception as e:
+        return None, None, None
+
+
+def load_maintenance_data():
+    """Load maintenance logs."""
+    path = os.path.join(DATA_DIR, "maintenance_logs.csv")
+    if os.path.exists(path):
+        try:
+            return pd.read_csv(path)
+        except:
+            pass
+    return None
+
+
+def load_supplier_data():
+    """Load supplier and delivery data."""
+    suppliers_path = os.path.join(DATA_DIR, "suppliers.csv")
+    deliveries_path = os.path.join(DATA_DIR, "deliveries.csv")
+    
+    suppliers_df = None
+    deliveries_df = None
+    
+    try:
+        if os.path.exists(suppliers_path):
+            suppliers_df = pd.read_csv(suppliers_path)
+        if os.path.exists(deliveries_path):
+            deliveries_df = pd.read_csv(deliveries_path)
+    except:
+        pass
+    
+    return suppliers_df, deliveries_df
+
+
+def load_models():
+    """Load trained models."""
+    models = {}
+    
+    rul_path = os.path.join(MODELS_DIR, "rul_model.pkl")
+    if os.path.exists(rul_path):
+        try:
+            with open(rul_path, 'rb') as f:
+                models['rul'] = pickle.load(f)
+        except:
+            pass
+    
+    cost_path = os.path.join(MODELS_DIR, "cost_model.pkl")
+    if os.path.exists(cost_path):
+        try:
+            with open(cost_path, 'rb') as f:
+                models['cost'] = pickle.load(f)
+        except:
+            pass
+    
+    results_path = os.path.join(MODELS_DIR, "training_results.json")
+    if os.path.exists(results_path):
+        try:
+            with open(results_path, 'r') as f:
+                models['results'] = json.load(f)
+        except:
+            pass
+    
+    return models
+
+# ============================================================
+# NLP FUNCTIONS
+# ============================================================
+
+def extract_failure_type(text):
+    """Extract failure type from text."""
+    text_lower = text.lower()
+    
+    if 'motor' in text_lower:
+        return 'MOTOR'
+    elif 'bearing' in text_lower:
+        return 'BEARING'
+    elif 'hydraulic' in text_lower:
+        return 'HYDRAULIC'
+    elif 'electric' in text_lower:
+        return 'ELECTRICAL'
+    elif 'software' in text_lower or 'plc' in text_lower:
+        return 'SOFTWARE'
+    elif 'calibrat' in text_lower:
+        return 'CALIBRATION'
+    else:
+        return 'OTHER'
+
+# ============================================================
+# TRAINING FUNCTIONS
+# ============================================================
+
+def engineer_features(train_df):
+    """Create features for RUL prediction."""
+    features_list = []
+    
+    for unit_id in train_df['unit_id'].unique():
+        unit_data = train_df[train_df['unit_id'] == unit_id].sort_values('cycle')
+        
+        for idx, row in unit_data.iterrows():
+            features = {'unit_id': unit_id, 'cycle': row['cycle'], 'rul': row['rul']}
+            
+            for sensor in USEFUL_SENSORS:
+                features[sensor] = row[sensor]
+            
+            cycle = row['cycle']
+            history = unit_data[unit_data['cycle'] <= cycle]
+            
+            for sensor in USEFUL_SENSORS[:6]:
+                if len(history) >= 5:
+                    features[f'{sensor}_rolling_mean'] = history[sensor].tail(5).mean()
+                    features[f'{sensor}_rolling_std'] = history[sensor].tail(5).std()
+                else:
+                    features[f'{sensor}_rolling_mean'] = row[sensor]
+                    features[f'{sensor}_rolling_std'] = 0
+                features[f'{sensor}_delta'] = row[sensor] - history[sensor].iloc[0]
+            
+            features_list.append(features)
+    
+    return pd.DataFrame(features_list)
+
+
+def train_rul_model(train_df, progress_bar=None):
+    """Train RUL model."""
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    
+    if progress_bar:
+        progress_bar.progress(10, "Engineering features...")
+    
+    features_df = engineer_features(train_df)
+    features_df['rul'] = features_df['rul'].clip(upper=125)
+    
+    if progress_bar:
+        progress_bar.progress(50, "Training model...")
+    
+    feature_cols = [c for c in features_df.columns if c not in ['unit_id', 'cycle', 'rul']]
+    X = features_df[feature_cols].values
+    y = features_df['rul'].values
+    
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    X_train, X_val, y_train, y_val = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    
+    if progress_bar:
+        progress_bar.progress(70, "Fitting Random Forest...")
+    
+    model = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
+    model.fit(X_train, y_train)
+    
+    if progress_bar:
+        progress_bar.progress(90, "Evaluating...")
+    
+    y_pred = model.predict(X_val)
+    metrics = {
+        'mae': float(mean_absolute_error(y_val, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_val, y_pred))),
+        'r2': float(r2_score(y_val, y_pred))
+    }
+    
+    importance = sorted(zip(feature_cols, model.feature_importances_), key=lambda x: x[1], reverse=True)
+    top_features = importance[:10]
+    
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    with open(os.path.join(MODELS_DIR, 'rul_model.pkl'), 'wb') as f:
+        pickle.dump({'model': model, 'scaler': scaler, 'feature_names': feature_cols, 'metrics': metrics, 'top_features': top_features}, f)
+    
+    save_results('rul_predictor', metrics)
+    
+    if progress_bar:
+        progress_bar.progress(100, "Complete")
+    
+    return metrics, top_features
+
+
+def train_cost_model(maintenance_df, progress_bar=None):
+    """Train cost model."""
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+    
+    if progress_bar:
+        progress_bar.progress(20, "Preparing features...")
+    
+    df = maintenance_df.copy()
+    df['is_planned'] = (df['event_type'] == 'planned').astype(int)
+    df['is_emergency'] = (df['event_type'] == 'emergency').astype(int)
+    df['machine_num'] = df['machine_id'].str.extract(r'(\d+)').astype(int)
+    df['has_motor'] = df['description'].str.lower().str.contains('motor').astype(int)
+    df['has_bearing'] = df['description'].str.lower().str.contains('bearing').astype(int)
+    df['has_hydraulic'] = df['description'].str.lower().str.contains('hydraulic').astype(int)
+    df['has_electrical'] = df['description'].str.lower().str.contains('electric').astype(int)
+    df['desc_length'] = df['description'].str.len()
+    
+    feature_cols = ['duration_hours', 'is_planned', 'is_emergency', 'machine_num',
+                    'has_motor', 'has_bearing', 'has_hydraulic', 'has_electrical', 'desc_length']
+    
+    X = df[feature_cols].values
+    y = df['cost'].values
+    
+    if progress_bar:
+        progress_bar.progress(50, "Training model...")
+    
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    
+    X_train, X_val, y_train, y_val = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+    
+    model = GradientBoostingRegressor(n_estimators=100, max_depth=5, random_state=42)
+    model.fit(X_train, y_train)
+    
+    if progress_bar:
+        progress_bar.progress(90, "Evaluating...")
+    
+    y_pred = model.predict(X_val)
+    metrics = {
+        'mae': float(mean_absolute_error(y_val, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_val, y_pred))),
+        'r2': float(r2_score(y_val, y_pred))
+    }
+    
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    with open(os.path.join(MODELS_DIR, 'cost_model.pkl'), 'wb') as f:
+        pickle.dump({'model': model, 'scaler': scaler, 'feature_names': feature_cols, 'metrics': metrics}, f)
+    
+    save_results('cost_predictor', metrics)
+    
+    if progress_bar:
+        progress_bar.progress(100, "Complete")
+    
+    return metrics
+
+
+def save_results(model_name, metrics):
+    """Save training results."""
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    results_path = os.path.join(MODELS_DIR, 'training_results.json')
+    
+    results = {}
+    if os.path.exists(results_path):
+        try:
+            with open(results_path, 'r') as f:
+                results = json.load(f)
+        except:
+            pass
+    
+    if 'models' not in results:
+        results['models'] = {}
+    
+    results['models'][model_name] = metrics
+    results['last_updated'] = datetime.now().isoformat()
+    
+    with open(results_path, 'w') as f:
+        json.dump(results, f, indent=2)
+
+# ============================================================
+# PAGES
+# ============================================================
+
+def page_dashboard():
+    """Dashboard page."""
+    section_title("OVERVIEW", "dashboard")
+    
+    train_df, test_df, rul_df = load_cmapss_data()
+    maintenance_df = load_maintenance_data()
+    suppliers_df, deliveries_df = load_supplier_data()
+    models = load_models()
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        if train_df is not None:
+            metric_card("ENGINE UNITS", str(train_df['unit_id'].nunique()), "in dataset")
+        else:
+            metric_card("ENGINE UNITS", "-", "no data")
+    
+    with col2:
+        if 'rul' in models:
+            r2 = models['rul']['metrics']['r2']
+            metric_card("RUL MODEL R2", f"{r2:.3f}", "trained", "positive")
+        else:
+            metric_card("RUL MODEL", "-", "not trained", "negative")
+    
+    with col3:
+        if maintenance_df is not None:
+            emergency = len(maintenance_df[maintenance_df['event_type'] == 'emergency'])
+            metric_card("EMERGENCY EVENTS", str(emergency), "in logs")
+        else:
+            metric_card("MAINTENANCE", "-", "no data")
+    
+    with col4:
+        if deliveries_df is not None:
+            on_time = deliveries_df['on_time'].mean() * 100
+            delta_type = "positive" if on_time > 80 else "negative"
+            metric_card("ON-TIME DELIVERY", f"{on_time:.1f}%", "average", delta_type)
+        else:
+            metric_card("DELIVERIES", "-", "no data")
+    
+    divider()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        section_title("DATA STATUS", "file")
+        
+        if train_df is not None:
+            status_item("CMAPSS Training Data", True, f"{len(train_df):,} records")
+        else:
+            status_item("CMAPSS Training Data", False, "not found")
+        
+        if maintenance_df is not None:
+            status_item("Maintenance Logs", True, f"{len(maintenance_df)} records")
+        else:
+            status_item("Maintenance Logs", False, "not found")
+        
+        if deliveries_df is not None:
+            status_item("Supplier Deliveries", True, f"{len(deliveries_df)} records")
+        else:
+            status_item("Supplier Deliveries", False, "not found")
+    
+    with col2:
+        section_title("MODEL STATUS", "analytics")
+        
+        if 'rul' in models:
+            m = models['rul']['metrics']
+            status_item("RUL Predictor", True, f"MAE: {m['mae']:.2f}")
+        else:
+            status_item("RUL Predictor", False, "not trained")
+        
+        if 'cost' in models:
+            m = models['cost']['metrics']
+            status_item("Cost Predictor", True, f"MAE: ${m['mae']:.2f}")
+        else:
+            status_item("Cost Predictor", False, "not trained")
+
+
+def page_turbofan():
+    """Turbofan analysis page."""
+    section_title("TURBOFAN ENGINE ANALYSIS", "turbine")
+    
+    train_df, test_df, rul_df = load_cmapss_data()
+    
+    if train_df is None:
+        alert_box("high", "NO DATA", "Upload CMAPSS data first")
+        return
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        metric_card("TRAINING ENGINES", str(train_df['unit_id'].nunique()))
+    with col2:
+        avg_life = train_df.groupby('unit_id')['cycle'].max().mean()
+        metric_card("AVG LIFETIME", f"{avg_life:.0f} cycles")
+    with col3:
+        if test_df is not None:
+            metric_card("TEST ENGINES", str(test_df['unit_id'].nunique()))
+        else:
+            metric_card("TEST ENGINES", "-")
+    
+    divider()
+    
+    selected_unit = st.selectbox("SELECT ENGINE UNIT", sorted(train_df['unit_id'].unique()))
+    unit_data = train_df[train_df['unit_id'] == selected_unit]
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig = px.line(unit_data, x='cycle', y='rul')
+        fig.add_hline(y=30, line_dash="dash", line_color="#ff3333", annotation_text="CRITICAL")
+        fig.update_traces(line_color='#00ff88')
+        fig.update_layout(title=f'REMAINING USEFUL LIFE - UNIT {selected_unit}')
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        fig = go.Figure()
+        colors = ['#0066ff', '#00ff88', '#ffaa00', '#ff00ff']
+        for sensor, color in zip(['sensor_2', 'sensor_7', 'sensor_11', 'sensor_15'], colors):
+            norm = (unit_data[sensor] - unit_data[sensor].min()) / (unit_data[sensor].max() - unit_data[sensor].min() + 0.001)
+            fig.add_trace(go.Scatter(x=unit_data['cycle'], y=norm, name=sensor.upper(), line=dict(color=color)))
+        fig.update_layout(title=f'SENSOR DEGRADATION - UNIT {selected_unit}')
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+
+
+def page_maintenance():
+    """Maintenance page."""
+    section_title("MAINTENANCE ANALYSIS", "maintenance")
+    
+    maintenance_df = load_maintenance_data()
+    
+    if maintenance_df is None:
+        alert_box("high", "NO DATA", "Upload maintenance data first")
+        return
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        metric_card("TOTAL RECORDS", str(len(maintenance_df)))
+    with col2:
+        total_cost = maintenance_df['cost'].sum()
+        metric_card("TOTAL COST", f"${total_cost:,.0f}")
+    with col3:
+        avg_duration = maintenance_df['duration_hours'].mean()
+        metric_card("AVG DURATION", f"{avg_duration:.1f}h")
+    
+    divider()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        cost_by_type = maintenance_df.groupby('event_type')['cost'].sum().reset_index()
+        fig = px.bar(cost_by_type, x='event_type', y='cost')
+        fig.update_traces(marker_color='#0066ff')
+        fig.update_layout(title='COST BY EVENT TYPE')
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        maintenance_df['failure_type'] = maintenance_df['description'].apply(extract_failure_type)
+        failure_counts = maintenance_df['failure_type'].value_counts().reset_index()
+        failure_counts.columns = ['type', 'count']
+        
+        fig = px.bar(failure_counts, x='count', y='type', orientation='h')
+        fig.update_traces(marker_color='#ff3333')
+        fig.update_layout(title='FAILURE TYPES (NLP EXTRACTED)')
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    divider()
+    section_title("SAMPLE NLP EXTRACTIONS")
+    
+    samples = maintenance_df.sample(min(3, len(maintenance_df)), random_state=42)
+    for _, row in samples.iterrows():
+        with st.expander(f"{row['event_id']} - {row['failure_type']}"):
+            st.markdown(f"**Description:** {row['description']}")
+            st.markdown(f"**Extracted Type:** `{row['failure_type']}`")
+            st.markdown(f"**Cost:** ${row['cost']:,.2f}")
+
+
+def page_suppliers():
+    """Suppliers page."""
+    section_title("SUPPLIER PERFORMANCE", "supplier")
+    
+    suppliers_df, deliveries_df = load_supplier_data()
+    
+    if deliveries_df is None:
+        alert_box("high", "NO DATA", "Upload supplier data first")
+        return
+    
+    supplier_stats = deliveries_df.groupby('supplier_name').agg({
+        'delivery_id': 'count',
+        'on_time': 'mean',
+        'days_late': 'mean',
+        'quality_score': 'mean',
+        'total_cost': 'sum'
+    }).reset_index()
+    supplier_stats['on_time_pct'] = supplier_stats['on_time'] * 100
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        metric_card("TOTAL SUPPLIERS", str(len(supplier_stats)))
+    with col2:
+        avg = supplier_stats['on_time_pct'].mean()
+        metric_card("AVG ON-TIME", f"{avg:.1f}%")
+    with col3:
+        at_risk = len(supplier_stats[supplier_stats['on_time_pct'] < 75])
+        metric_card("AT-RISK", str(at_risk), "below 75%", "negative" if at_risk > 0 else "positive")
+    
+    divider()
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        fig = px.bar(supplier_stats.sort_values('on_time_pct'), x='supplier_name', y='on_time_pct',
+                    color='on_time_pct', color_continuous_scale=['#ff3333', '#ffaa00', '#00ff88'])
+        fig.add_hline(y=75, line_dash="dash", line_color="#ffffff", annotation_text="TARGET")
+        fig.update_layout(title='ON-TIME DELIVERY RATE', xaxis_tickangle=-45)
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    with col2:
+        fig = px.scatter(supplier_stats, x='on_time_pct', y='quality_score',
+                        size='total_cost', hover_name='supplier_name', color_discrete_sequence=['#0066ff'])
+        fig.add_vline(x=75, line_dash="dash", line_color="#ff3333")
+        fig.add_hline(y=4.0, line_dash="dash", line_color="#00ff88")
+        fig.update_layout(title='QUALITY VS RELIABILITY')
+        fig = apply_plotly_theme(fig)
+        st.plotly_chart(fig, use_container_width=True)
+    
+    at_risk_df = supplier_stats[supplier_stats['on_time_pct'] < 75]
+    if len(at_risk_df) > 0:
+        divider()
+        section_title("AT-RISK SUPPLIERS", "alert")
+        for _, row in at_risk_df.iterrows():
+            alert_box("high", row['supplier_name'], f"On-time: {row['on_time_pct']:.1f}% | Avg late: {row['days_late']:.1f} days")
+
+
+def page_upload():
+    """Upload page."""
+    section_title("UPLOAD DATA", "upload")
+    
+    st.markdown('<p style="color: #666; margin-bottom: 1.5rem;">Upload data files. File types are auto-detected from filenames.</p>', unsafe_allow_html=True)
+    
+    uploaded_files = st.file_uploader("Drop files here", type=['txt', 'csv'], accept_multiple_files=True)
+    
+    if uploaded_files:
+        section_title("DETECTED FILES")
+        
+        file_mapping = {}
+        
+        for f in uploaded_files:
+            name = f.name.lower()
+            
+            if 'train' in name and name.endswith('.txt'):
+                file_mapping['train_FD001.txt'] = f
+                alert_box("info", "CMAPSS Training Data", f.name)
+            elif 'test' in name and name.endswith('.txt'):
+                file_mapping['test_FD001.txt'] = f
+                alert_box("info", "CMAPSS Test Data", f.name)
+            elif 'rul' in name and name.endswith('.txt'):
+                file_mapping['RUL_FD001.txt'] = f
+                alert_box("info", "RUL Labels", f.name)
+            elif 'maintenance' in name:
+                file_mapping['maintenance_logs.csv'] = f
+                alert_box("info", "Maintenance Logs", f.name)
+            elif 'supplier' in name:
+                file_mapping['suppliers.csv'] = f
+                alert_box("info", "Suppliers", f.name)
+            elif 'deliver' in name:
+                file_mapping['deliveries.csv'] = f
+                alert_box("info", "Deliveries", f.name)
+            elif 'production' in name:
+                file_mapping['production_runs.csv'] = f
+                alert_box("info", "Production", f.name)
+            else:
+                file_mapping[f.name] = f
+                alert_box("medium", "Unknown", f.name)
+        
+        if st.button("SAVE ALL FILES", type="primary"):
+            os.makedirs(DATA_DIR, exist_ok=True)
+            for filename, file_obj in file_mapping.items():
+                with open(os.path.join(DATA_DIR, filename), 'wb') as out_f:
+                    out_f.write(file_obj.getvalue())
+            alert_box("low", "SUCCESS", f"Saved {len(file_mapping)} files")
+    
+    divider()
+    section_title("CURRENT DATA FILES")
+    
+    files = [
+        ("train_FD001.txt", "CMAPSS Training"),
+        ("test_FD001.txt", "CMAPSS Test"),
+        ("RUL_FD001.txt", "RUL Labels"),
+        ("maintenance_logs.csv", "Maintenance"),
+        ("suppliers.csv", "Suppliers"),
+        ("deliveries.csv", "Deliveries"),
+    ]
+    
+    for filename, label in files:
+        path = os.path.join(DATA_DIR, filename)
+        if os.path.exists(path):
+            size = os.path.getsize(path)
+            size_str = f"{size/1024:.1f} KB" if size < 1024*1024 else f"{size/1024/1024:.1f} MB"
+            status_item(label, True, size_str)
+        else:
+            status_item(label, False, "not found")
+
+
+def page_train():
+    """Training page."""
+    section_title("TRAIN MODELS", "train")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### RUL PREDICTOR")
+        st.markdown('<p style="color: #666;">Predicts Remaining Useful Life for turbofan engines.</p>', unsafe_allow_html=True)
+        
+        train_path = os.path.join(DATA_DIR, "train_FD001.txt")
+        
+        if os.path.exists(train_path):
+            alert_box("low", "DATA READY", "train_FD001.txt found")
+            
+            if st.button("TRAIN RUL MODEL", type="primary", key="train_rul"):
+                train_df, _, _ = load_cmapss_data()
+                if train_df is not None:
+                    progress = st.progress(0)
+                    try:
+                        metrics, top_features = train_rul_model(train_df, progress)
+                        alert_box("low", "TRAINING COMPLETE", f"MAE: {metrics['mae']:.2f} cycles | R2: {metrics['r2']:.3f}")
+                        
+                        st.markdown("**TOP FEATURES:**")
+                        for feat, imp in top_features[:5]:
+                            st.markdown(f"- `{feat}`: {imp:.4f}")
+                    except Exception as e:
+                        alert_box("high", "TRAINING FAILED", str(e))
+        else:
+            alert_box("high", "NO DATA", "Upload train_FD001.txt first")
+    
+    with col2:
+        st.markdown("### COST PREDICTOR")
+        st.markdown('<p style="color: #666;">Predicts maintenance costs from event features.</p>', unsafe_allow_html=True)
+        
+        maint_path = os.path.join(DATA_DIR, "maintenance_logs.csv")
+        
+        if os.path.exists(maint_path):
+            alert_box("low", "DATA READY", "maintenance_logs.csv found")
+            
+            if st.button("TRAIN COST MODEL", type="primary", key="train_cost"):
+                maintenance_df = load_maintenance_data()
+                if maintenance_df is not None:
+                    progress = st.progress(0)
+                    try:
+                        metrics = train_cost_model(maintenance_df, progress)
+                        alert_box("low", "TRAINING COMPLETE", f"MAE: ${metrics['mae']:.2f} | R2: {metrics['r2']:.3f}")
+                    except Exception as e:
+                        alert_box("high", "TRAINING FAILED", str(e))
+        else:
+            alert_box("high", "NO DATA", "Upload maintenance_logs.csv first")
+    
+    divider()
+    
+    st.markdown("### TRAIN ALL")
+    
+    if st.button("TRAIN ALL AVAILABLE MODELS"):
+        results = []
+        
+        if os.path.exists(os.path.join(DATA_DIR, "train_FD001.txt")):
+            train_df, _, _ = load_cmapss_data()
+            if train_df is not None:
+                try:
+                    metrics, _ = train_rul_model(train_df)
+                    results.append(f"RUL Model: MAE={metrics['mae']:.2f}, R2={metrics['r2']:.3f}")
+                except Exception as e:
+                    results.append(f"RUL Model: FAILED - {e}")
+        
+        if os.path.exists(os.path.join(DATA_DIR, "maintenance_logs.csv")):
+            maintenance_df = load_maintenance_data()
+            if maintenance_df is not None:
+                try:
+                    metrics = train_cost_model(maintenance_df)
+                    results.append(f"Cost Model: MAE=${metrics['mae']:.2f}, R2={metrics['r2']:.3f}")
+                except Exception as e:
+                    results.append(f"Cost Model: FAILED - {e}")
+        
+        for r in results:
+            if "FAILED" in r:
+                alert_box("high", "ERROR", r)
+            else:
+                alert_box("low", "SUCCESS", r)
+
+# ============================================================
+# MAIN
+# ============================================================
+
+def main():
+    st.markdown(DARK_CSS, unsafe_allow_html=True)
+    
+    # Sidebar
     with st.sidebar:
-        st.markdown(f"""
-        <div style="padding: 1rem 0; margin-bottom: 1rem;">
-            {LOGO_SVG}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown(f'<div style="padding: 1rem 0 1.5rem 0;">{LOGO_SVG}</div>', unsafe_allow_html=True)
         
-        st.markdown('<div class="card-title">NAVIGATION</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-title">NAVIGATION</div>', unsafe_allow_html=True)
         
-        pages = {
-            "Dashboard": "dashboard",
-            "Maintenance": "maintenance",
-            "Suppliers": "supplier",
-            "Production": "production",
-            "Financials": "financial",
-            "Turbofan Analysis": "turbine",
-            "Data Upload": "upload",
-            "Consultant": "chat"
-        }
-        
-        selected = st.radio(
-            "Select View",
-            list(pages.keys()),
+        page = st.radio(
+            "nav",
+            ["Dashboard", "Turbofan Analysis", "Maintenance", "Suppliers", "Upload Data", "Train Models"],
             label_visibility="collapsed"
         )
         
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
         
-        st.markdown('<div class="card-title">SYSTEM STATUS</div>', unsafe_allow_html=True)
-        st.markdown("""
-        <div style="font-size: 0.875rem; color: #a0a0a0;">
-            <div style="margin: 0.5rem 0;"><span class="status-dot online"></span>Analytics Engine</div>
-            <div style="margin: 0.5rem 0;"><span class="status-dot online"></span>Knowledge Graph</div>
-            <div style="margin: 0.5rem 0;"><span class="status-dot online"></span>Data Pipeline</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="section-title">MODEL STATUS</div>', unsafe_allow_html=True)
         
-        return selected
-
-
-def render_dashboard(data, insights, recommendations):
-    """Render main dashboard."""
-    financials = data["financials"]
-    recent = financials.tail(3)
-    
-    # KPI Row
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        avg_margin = recent["profit_margin"].mean()
-        delta = recent["profit_margin"].iloc[-1] - financials["profit_margin"].iloc[0]
-        delta_type = "positive" if delta > 0 else "negative"
-        render_metric_card("PROFIT MARGIN", f"{avg_margin:.1f}%", 
-                          f"{delta:+.1f}%", delta_type)
-    
-    with col2:
-        total_downtime = data["maintenance"]["downtime_impact_hours"].sum()
-        render_metric_card("TOTAL DOWNTIME", f"{total_downtime:.0f} HRS", "YTD", "neutral")
-    
-    with col3:
-        on_time_rate = data["deliveries"]["on_time"].mean() * 100
-        delta_type = "positive" if on_time_rate > 80 else "negative"
-        render_metric_card("ON-TIME DELIVERY", f"{on_time_rate:.1f}%", 
-                          "TARGET: 80%", delta_type)
-    
-    with col4:
-        high_priority = len([i for i in insights if i.severity in ["high", "critical"]])
-        delta_type = "negative" if high_priority > 0 else "positive"
-        render_metric_card("PRIORITY ISSUES", str(high_priority), 
-                          "REQUIRES ATTENTION" if high_priority > 0 else "ALL CLEAR", 
-                          delta_type)
-    
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    
-    # Insights and Recommendations
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(f"""
-        <div class="card-title">
-            {get_icon("alert_high", 16)} KEY FINDINGS
-        </div>
-        """, unsafe_allow_html=True)
+        models = load_models()
         
-        high_severity = [i for i in insights if i.severity in ["high", "critical"]][:5]
-        for insight in high_severity:
-            render_alert(insight.severity, insight.category.replace("_", " ").upper(),
-                        insight.description, "alert_high" if insight.severity == "high" else "alert_medium")
-    
-    with col2:
-        st.markdown(f"""
-        <div class="card-title">
-            {get_icon("target", 16)} RECOMMENDATIONS
-        </div>
-        """, unsafe_allow_html=True)
+        rul_status = "green" if 'rul' in models else "red"
+        cost_status = "green" if 'cost' in models else "red"
         
-        for rec in recommendations[:5]:
-            savings = rec.get("estimated_savings", 0)
-            savings_text = f" | Est. savings: ${savings:,.0f}" if savings else ""
-            render_alert("info", f"PRIORITY {rec['priority']}", 
-                        f"{rec['recommendation']}{savings_text}", "check")
-
-
-def render_maintenance_analysis(data, kg):
-    """Render maintenance analysis."""
-    maintenance = data["maintenance"]
-    
-    st.markdown(f'<div class="card-title">{get_icon("maintenance", 16)} MAINTENANCE ANALYSIS</div>', 
-                unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        machine_costs = maintenance.groupby("machine_id")["cost"].sum().reset_index()
-        fig = px.bar(
-            machine_costs.nlargest(10, "cost"),
-            x="machine_id",
-            y="cost",
-            title="MAINTENANCE COST BY MACHINE"
-        )
-        fig = apply_plotly_theme(fig)
-        fig.update_traces(marker_color='#0066ff')
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        event_counts = maintenance["event_type"].value_counts()
-        fig = px.pie(
-            values=event_counts.values,
-            names=event_counts.index,
-            title="EVENT DISTRIBUTION",
-            color_discrete_sequence=['#0066ff', '#00ff88', '#ff3333']
-        )
-        fig = apply_plotly_theme(fig)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Downtime trend
-    maintenance["month"] = pd.to_datetime(maintenance["start_time"]).dt.to_period("M")
-    monthly_downtime = maintenance.groupby("month")["downtime_impact_hours"].sum().reset_index()
-    monthly_downtime["month"] = monthly_downtime["month"].astype(str)
-    
-    fig = px.line(
-        monthly_downtime,
-        x="month",
-        y="downtime_impact_hours",
-        title="MONTHLY DOWNTIME TREND"
-    )
-    fig = apply_plotly_theme(fig)
-    fig.update_traces(line_color='#ff3333')
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Risk assessment
-    st.markdown(f'<div class="card-title">{get_icon("alert_high", 16)} RISK ASSESSMENT</div>', 
-                unsafe_allow_html=True)
-    
-    risks = kg.find_risk_patterns()
-    machine_risks = [r for r in risks if r["type"] == "high_maintenance_machine"][:5]
-    
-    for risk in machine_risks:
-        render_alert(risk["severity"], risk["node_id"], risk["details"], "machine")
-
-
-def render_turbofan_analysis(cmapss_data=None):
-    """Render NASA CMAPSS turbofan analysis."""
-    st.markdown(f'<div class="card-title">{get_icon("turbine", 16)} TURBOFAN ENGINE ANALYSIS</div>', 
-                unsafe_allow_html=True)
-    
-    if cmapss_data is None:
-        cmapss_data = load_cmapss_data()
-    
-    # Overview metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    n_units = cmapss_data["unit_id"].nunique()
-    avg_cycles = cmapss_data.groupby("unit_id")["cycle"].max().mean()
-    min_rul = cmapss_data.groupby("unit_id")["rul"].min().min()
-    critical_units = (cmapss_data.groupby("unit_id")["rul"].min() < 50).sum()
-    
-    with col1:
-        render_metric_card("ENGINE UNITS", str(n_units), "IN FLEET", "neutral")
-    with col2:
-        render_metric_card("AVG CYCLES", f"{avg_cycles:.0f}", "PER UNIT", "neutral")
-    with col3:
-        render_metric_card("MIN RUL", f"{min_rul:.0f}", "CYCLES", 
-                          "negative" if min_rul < 30 else "neutral")
-    with col4:
-        render_metric_card("CRITICAL UNITS", str(critical_units), 
-                          "RUL < 50", "negative" if critical_units > 0 else "positive")
-    
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    
-    # Unit selector
-    selected_unit = st.selectbox("SELECT ENGINE UNIT", 
-                                 sorted(cmapss_data["unit_id"].unique()))
-    
-    unit_data = cmapss_data[cmapss_data["unit_id"] == selected_unit]
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        # RUL over time
-        fig = px.line(unit_data, x="cycle", y="rul", 
-                     title=f"REMAINING USEFUL LIFE - UNIT {selected_unit}")
-        fig = apply_plotly_theme(fig)
-        fig.update_traces(line_color='#00ff88')
-        fig.add_hline(y=30, line_dash="dash", line_color="#ff3333",
-                     annotation_text="CRITICAL THRESHOLD")
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        # Key sensor trends
-        sensor_cols = ['sensor_2', 'sensor_7', 'sensor_11', 'sensor_15']
-        fig = go.Figure()
-        colors = ['#0066ff', '#00ff88', '#ffaa00', '#ff00ff']
-        
-        for sensor, color in zip(sensor_cols, colors):
-            if sensor in unit_data.columns:
-                # Normalize for comparison
-                normalized = (unit_data[sensor] - unit_data[sensor].min()) / \
-                            (unit_data[sensor].max() - unit_data[sensor].min() + 0.001)
-                fig.add_trace(go.Scatter(
-                    x=unit_data["cycle"],
-                    y=normalized,
-                    name=sensor.upper(),
-                    line=dict(color=color)
-                ))
-        
-        fig.update_layout(title=f"SENSOR TRENDS - UNIT {selected_unit}")
-        fig = apply_plotly_theme(fig)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Fleet overview
-    st.markdown(f'<div class="card-title">{get_icon("analytics", 16)} FLEET RUL DISTRIBUTION</div>', 
-                unsafe_allow_html=True)
-    
-    unit_rul = cmapss_data.groupby("unit_id")["rul"].min().reset_index()
-    unit_rul.columns = ["unit_id", "min_rul"]
-    unit_rul["status"] = unit_rul["min_rul"].apply(
-        lambda x: "CRITICAL" if x < 30 else ("WARNING" if x < 70 else "NOMINAL")
-    )
-    
-    fig = px.bar(unit_rul.sort_values("min_rul"), x="unit_id", y="min_rul",
-                 color="status", title="MINIMUM RUL BY UNIT",
-                 color_discrete_map={
-                     "CRITICAL": "#ff3333",
-                     "WARNING": "#ffaa00", 
-                     "NOMINAL": "#00ff88"
-                 })
-    fig = apply_plotly_theme(fig)
-    fig.add_hline(y=30, line_dash="dash", line_color="#ff3333")
-    fig.add_hline(y=70, line_dash="dash", line_color="#ffaa00")
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def render_data_upload():
-    """Render data upload interface."""
-    st.markdown(f'<div class="card-title">{get_icon("upload", 16)} DATA UPLOAD</div>', 
-                unsafe_allow_html=True)
-    
-    st.markdown("""
-    <div class="card">
-        <p style="color: #a0a0a0;">
-            Upload your manufacturing or sensor data for analysis. 
-            Supported formats include NASA CMAPSS datasets and custom CSV files.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    data_type = st.radio(
-        "DATA TYPE",
-        ["NASA CMAPSS Dataset", "Manufacturing Data (CSV)", "Custom Sensor Data"],
-        horizontal=True
-    )
-    
-    if data_type == "NASA CMAPSS Dataset":
-        st.markdown("""
-        <div class="alert alert-info">
-            <div class="alert-content">
-                <div class="alert-title">CMAPSS FORMAT</div>
-                <div class="alert-text">
-                    Space-separated values with columns: unit_id, cycle, op_setting_1-3, sensor_1-21
-                </div>
+        st.markdown(f'''
+        <div style="font-size: 0.85rem;">
+            <div style="display: flex; align-items: center; margin: 0.5rem 0;">
+                <span class="status-dot {rul_status}"></span>
+                <span style="color: #888;">RUL Predictor</span>
+            </div>
+            <div style="display: flex; align-items: center; margin: 0.5rem 0;">
+                <span class="status-dot {cost_status}"></span>
+                <span style="color: #888;">Cost Predictor</span>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+        ''', unsafe_allow_html=True)
         
-        col1, col2 = st.columns(2)
-        with col1:
-            train_file = st.file_uploader("TRAINING DATA", type=["txt", "csv"])
-        with col2:
-            test_file = st.file_uploader("TEST DATA (OPTIONAL)", type=["txt", "csv"])
-        
-        rul_file = st.file_uploader("RUL LABELS (OPTIONAL)", type=["txt", "csv"])
-        
-        if train_file is not None:
-            if st.button("PROCESS DATA"):
-                with st.spinner("Processing..."):
-                    loader = CMAPSSDataLoader()
-                    try:
-                        data = loader.load_from_file(
-                            train_file, 
-                            test_file if test_file else None,
-                            rul_file if rul_file else None
-                        )
-                        st.session_state["cmapss_data"] = data["train"]
-                        
-                        render_alert("low", "SUCCESS", 
-                                    f"Loaded {len(data['train'])} samples from "
-                                    f"{data['train']['unit_id'].nunique()} units", "check")
-                        
-                        # Show preview
-                        st.markdown('<div class="card-title">DATA PREVIEW</div>', 
-                                   unsafe_allow_html=True)
-                        st.dataframe(data["train"].head(10))
-                        
-                    except Exception as e:
-                        render_alert("high", "ERROR", str(e), "alert_high")
+        st.markdown('<div class="divider"></div>', unsafe_allow_html=True)
+        st.markdown('<p style="color: #444; font-size: 0.7rem; letter-spacing: 1px;">LEANNLP V2.0<br/>MASHIGO & WILLIAMS</p>', unsafe_allow_html=True)
     
-    elif data_type == "Manufacturing Data (CSV)":
-        uploaded_files = st.file_uploader(
-            "UPLOAD CSV FILES",
-            type=["csv"],
-            accept_multiple_files=True
-        )
-        
-        if uploaded_files:
-            for file in uploaded_files:
-                df = pd.read_csv(file)
-                st.markdown(f'<div class="card-title">{file.name}</div>', 
-                           unsafe_allow_html=True)
-                st.dataframe(df.head())
+    # Main content
+    if page == "Dashboard":
+        page_dashboard()
+    elif page == "Turbofan Analysis":
+        page_turbofan()
+    elif page == "Maintenance":
+        page_maintenance()
+    elif page == "Suppliers":
+        page_suppliers()
+    elif page == "Upload Data":
+        page_upload()
+    elif page == "Train Models":
+        page_train()
     
-    else:
-        st.markdown("""
-        <div class="card">
-            <p style="color: #a0a0a0;">
-                Upload sensor data with the following columns:<br>
-                - unit_id or machine_id: Equipment identifier<br>
-                - cycle or timestamp: Time indicator<br>
-                - sensor_1, sensor_2, ...: Sensor readings
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        sensor_file = st.file_uploader("SENSOR DATA", type=["csv"])
-        
-        if sensor_file is not None:
-            df = pd.read_csv(sensor_file)
-            st.markdown('<div class="card-title">DATA PREVIEW</div>', unsafe_allow_html=True)
-            st.dataframe(df.head())
-            
-            # Try to process
-            loader = CMAPSSDataLoader()
-            try:
-                data = loader.load_from_dataframe(df)
-                st.session_state["custom_sensor_data"] = data["train"]
-                render_alert("low", "SUCCESS", 
-                            f"Processed {len(data['train'])} samples", "check")
-            except Exception as e:
-                render_alert("medium", "WARNING", 
-                            f"Could not auto-process: {str(e)}", "alert_medium")
-
-
-def render_consultant(data, insights, nlg):
-    """Render chatbot interface."""
-    st.markdown(f'<div class="card-title">{get_icon("chat", 16)} MANUFACTURING CONSULTANT</div>', 
-                unsafe_allow_html=True)
-    
-    # Initialize chat
-    if "messages" not in st.session_state:
-        st.session_state.messages = [{
-            "role": "assistant",
-            "content": "Systems online. I can provide analysis on maintenance, suppliers, production efficiency, and predictive insights. What would you like to know?"
-        }]
-    
-    # Display chat
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
-    
-    # Input
-    if prompt := st.chat_input("Enter query..."):
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        
-        response = nlg.generate_chatbot_response(prompt, insights, data)
-        
-        st.session_state.messages.append({"role": "assistant", "content": response})
-        with st.chat_message("assistant"):
-            st.markdown(response)
-    
-    # Quick actions
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">QUICK QUERIES</div>', unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("SYSTEM SUMMARY"):
-            st.session_state.messages.append({"role": "user", "content": "Give me a summary"})
-            response = nlg.generate_chatbot_response("summary", insights, data)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
-    with col2:
-        if st.button("MAINTENANCE STATUS"):
-            st.session_state.messages.append({"role": "user", "content": "Maintenance issues"})
-            response = nlg.generate_chatbot_response("maintenance", insights, data)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
-    with col3:
-        if st.button("RECOMMENDATIONS"):
-            st.session_state.messages.append({"role": "user", "content": "Recommendations"})
-            response = nlg.generate_chatbot_response("recommend", insights, data)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-            st.rerun()
-
-
-def render_supplier_analysis(data):
-    """Render supplier analysis."""
-    deliveries = data["deliveries"]
-    
-    st.markdown(f'<div class="card-title">{get_icon("supplier", 16)} SUPPLIER PERFORMANCE</div>', 
-                unsafe_allow_html=True)
-    
-    supplier_stats = deliveries.groupby("supplier_name").agg({
-        "delivery_id": "count",
-        "on_time": "mean",
-        "days_late": "mean",
-        "quality_score": "mean",
-        "total_cost": "sum"
-    }).reset_index()
-    supplier_stats.columns = ["Supplier", "Deliveries", "On-Time Rate", 
-                              "Avg Days Late", "Avg Quality", "Total Spend"]
-    supplier_stats["On-Time Rate"] = supplier_stats["On-Time Rate"] * 100
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig = px.bar(
-            supplier_stats.sort_values("On-Time Rate"),
-            x="Supplier",
-            y="On-Time Rate",
-            title="ON-TIME DELIVERY RATE",
-            color="On-Time Rate",
-            color_continuous_scale=[[0, '#ff3333'], [0.5, '#ffaa00'], [1, '#00ff88']]
-        )
-        fig = apply_plotly_theme(fig)
-        fig.add_hline(y=80, line_dash="dash", line_color="#ffffff", 
-                     annotation_text="TARGET")
-        fig.update_layout(xaxis_tickangle=-45)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        fig = px.scatter(
-            supplier_stats,
-            x="On-Time Rate",
-            y="Avg Quality",
-            size="Total Spend",
-            hover_name="Supplier",
-            title="QUALITY VS RELIABILITY"
-        )
-        fig = apply_plotly_theme(fig)
-        fig.add_hline(y=4.0, line_dash="dash", line_color="#00ff88")
-        fig.add_vline(x=80, line_dash="dash", line_color="#00ff88")
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Table
-    st.markdown('<div class="card-title">SUPPLIER SCORECARD</div>', unsafe_allow_html=True)
-    formatted = supplier_stats.copy()
-    formatted["Total Spend"] = formatted["Total Spend"].apply(lambda x: f"${x:,.0f}")
-    formatted["On-Time Rate"] = formatted["On-Time Rate"].apply(lambda x: f"{x:.1f}%")
-    formatted["Avg Quality"] = formatted["Avg Quality"].apply(lambda x: f"{x:.1f}/5")
-    st.dataframe(formatted, use_container_width=True)
-
-
-def render_production_analysis(data, engine):
-    """Render production analysis."""
-    production = data["production"]
-    
-    st.markdown(f'<div class="card-title">{get_icon("production", 16)} PRODUCTION EFFICIENCY</div>', 
-                unsafe_allow_html=True)
-    
-    col1, col2, col3 = st.columns(3)
-    
-    avg_eff = production["efficiency_pct"].mean()
-    avg_defect = production["defect_rate"].mean()
-    total_units = production["units_produced"].sum()
-    
-    with col1:
-        render_metric_card("AVG EFFICIENCY", f"{avg_eff:.1f}%", 
-                          "ABOVE TARGET" if avg_eff > 85 else "BELOW TARGET",
-                          "positive" if avg_eff > 85 else "negative")
-    with col2:
-        render_metric_card("DEFECT RATE", f"{avg_defect:.2f}%",
-                          "ACCEPTABLE" if avg_defect < 2 else "HIGH",
-                          "positive" if avg_defect < 2 else "negative")
-    with col3:
-        render_metric_card("TOTAL OUTPUT", f"{total_units:,}", "UNITS", "neutral")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        machine_eff = production.groupby("machine_id")["efficiency_pct"].mean().reset_index()
-        fig = px.bar(
-            machine_eff.sort_values("efficiency_pct"),
-            x="machine_id",
-            y="efficiency_pct",
-            title="EFFICIENCY BY MACHINE",
-            color="efficiency_pct",
-            color_continuous_scale=[[0, '#ff3333'], [0.5, '#ffaa00'], [1, '#00ff88']]
-        )
-        fig = apply_plotly_theme(fig)
-        fig.add_hline(y=avg_eff, line_dash="dash", line_color="#ffffff")
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        operator_eff = production.groupby("operator_id")["efficiency_pct"].mean().reset_index()
-        fig = px.bar(
-            operator_eff.nlargest(10, "efficiency_pct"),
-            x="operator_id",
-            y="efficiency_pct",
-            title="TOP OPERATORS"
-        )
-        fig = apply_plotly_theme(fig)
-        fig.update_traces(marker_color='#0066ff')
-        st.plotly_chart(fig, use_container_width=True)
-
-
-def render_financial_analysis(data, engine):
-    """Render financial analysis."""
-    financials = data["financials"]
-    
-    st.markdown(f'<div class="card-title">{get_icon("financial", 16)} FINANCIAL ANALYSIS</div>', 
-                unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        
-        fig.add_trace(
-            go.Bar(x=financials["month"], y=financials["revenue"], 
-                  name="Revenue", marker_color='#0066ff'),
-            secondary_y=False
-        )
-        fig.add_trace(
-            go.Scatter(x=financials["month"], y=financials["profit_margin"], 
-                      name="Margin %", line=dict(color='#00ff88')),
-            secondary_y=True
-        )
-        
-        fig.update_layout(title="REVENUE & MARGIN")
-        fig = apply_plotly_theme(fig)
-        fig.update_yaxes(title_text="Revenue ($)", secondary_y=False)
-        fig.update_yaxes(title_text="Margin (%)", secondary_y=True)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    with col2:
-        cost_cols = ["material_cost", "labor_cost", "maintenance_cost", 
-                    "scrap_cost", "overhead"]
-        cost_totals = financials[cost_cols].sum()
-        
-        fig = px.pie(
-            values=cost_totals.values,
-            names=[c.replace("_", " ").upper() for c in cost_cols],
-            title="COST BREAKDOWN",
-            color_discrete_sequence=['#0066ff', '#00ff88', '#ff3333', 
-                                    '#ffaa00', '#ff00ff']
-        )
-        fig = apply_plotly_theme(fig)
-        st.plotly_chart(fig, use_container_width=True)
-    
-    # Cost trends
-    fig = go.Figure()
-    colors = {'maintenance_cost': '#ff3333', 'scrap_cost': '#ffaa00', 
-              'material_cost': '#0066ff'}
-    for col, color in colors.items():
-        fig.add_trace(go.Scatter(
-            x=financials["month"],
-            y=financials[col],
-            name=col.replace("_", " ").upper(),
-            line=dict(color=color)
-        ))
-    fig.update_layout(title="COST TRENDS")
-    fig = apply_plotly_theme(fig)
-    st.plotly_chart(fig, use_container_width=True)
-
-
-def main():
-    """Main application entry point."""
-    # Load data and models
-    with st.spinner("Initializing systems..."):
-        data = load_manufacturing_data()
-        kg = build_knowledge_graph(data)
-        engine = train_analytics_engine(data)
-        insights, recommendations = extract_insights(data)
-        nlg = NaturalLanguageGenerator()
-    
-    # Render header
-    render_header()
-    
-    # Sidebar navigation
-    selected_page = render_sidebar()
-    
-    # Render selected page
-    if selected_page == "Dashboard":
-        render_dashboard(data, insights, recommendations)
-    elif selected_page == "Maintenance":
-        render_maintenance_analysis(data, kg)
-    elif selected_page == "Suppliers":
-        render_supplier_analysis(data)
-    elif selected_page == "Production":
-        render_production_analysis(data, engine)
-    elif selected_page == "Financials":
-        render_financial_analysis(data, engine)
-    elif selected_page == "Turbofan Analysis":
-        cmapss_data = st.session_state.get("cmapss_data", None)
-        render_turbofan_analysis(cmapss_data)
-    elif selected_page == "Data Upload":
-        render_data_upload()
-    elif selected_page == "Consultant":
-        render_consultant(data, insights, nlg)
-    
-    # Footer
-    st.markdown("""
-    <div class="footer">
-        LEANNLP MANUFACTURING ANALYTICS | MALIK MASHIGO & KAM WILLIAMS | 2025
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div class="footer">LEANNLP MANUFACTURING ANALYTICS | 2025</div>', unsafe_allow_html=True)
 
 
 if __name__ == "__main__":

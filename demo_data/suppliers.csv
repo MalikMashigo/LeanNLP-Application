@@ -1,0 +1,11 @@
+supplier_id,name,category,reliability_score,avg_lead_time_days,contract_value,payment_terms,quality_rating
+S001,SteelCorp Industries,Electronic Components,0.77,17,379397.27,Net 30,4.4
+S002,FastParts Supply,Tooling,0.8,13,256662.0,Net 30,4.4
+S003,PrecisionMetal Co,Lubricants,0.88,4,374899.45,Net 45,3.8
+S004,GlobalComponents Ltd,Electronic Components,0.71,3,186909.01,Net 45,3.5
+S005,QualityAlloys Inc,Fasteners,0.66,12,70999.55,Net 60,4.2
+S006,TechMaterials Group,Fasteners,0.91,14,281405.5,Net 30,3.6
+S007,ReliableSupply Partners,Electronic Components,0.85,11,79273.22,Net 30,4.9
+S008,IndustrialSource LLC,Raw Steel,0.92,4,357904.86,Net 60,4.5
+S009,MetalWorks Direct,Packaging,0.85,17,128014.09,Net 30,3.9
+S010,ComponentPro Solutions,Aluminum Stock,0.87,8,143573.75,Net 45,3.5
